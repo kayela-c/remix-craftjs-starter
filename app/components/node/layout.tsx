@@ -1,7 +1,7 @@
-import { withNode } from '~/components/node/connector';
-import { SettingsControl } from '../settings-control';
-import React from 'react';
-import { Element } from '@craftjs/core';
+import { withNode } from "~/components/node/connector";
+import { SettingsControl } from "../settings-control";
+import React from "react";
+import { Element } from "@craftjs/core";
 
 const draggable = true;
 const droppable = true;
@@ -10,12 +10,12 @@ interface OneBlockProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const OneBlock = React.forwardRef<HTMLDivElement, OneBlockProps>(
   ({ ...props }, ref) => {
-    const Comp = 'div';
+    const Comp = "div";
     return <Comp ref={ref} {...props} />;
   }
 );
 
-OneBlock.displayName = 'div';
+OneBlock.displayName = "div";
 
 export const NodeOneBlock = withNode(OneBlock, {
   draggable,
@@ -41,10 +41,34 @@ export const NodeTwoBlocks = ({ ...props }: NodeTwoBlocksProps) => {
   );
 };
 
+interface NodeThreeBlocksProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const NodeThreeBlocks = ({ ...props }: NodeThreeBlocksProps) => {
+  return (
+    <NodeOneBlock {...props}>
+      <Element
+        canvas
+        is={NodeOneBlock as typeof NodeOneBlock & string}
+        id="first-block"
+      />
+      <Element
+        canvas
+        is={NodeOneBlock as typeof NodeOneBlock & string}
+        id="second-block"
+      />
+      <Element
+        canvas
+        is={NodeOneBlock as typeof NodeOneBlock & string}
+        id="third-block"
+      />
+    </NodeOneBlock>
+  );
+};
+
 NodeTwoBlocks.craft = {
-  displayName: 'div',
+  displayName: "div",
   props: {
-    className: 'flex flex-row m-2 p-4',
+    className: "flex flex-row m-2 p-4",
   },
   related: {
     toolbar: SettingsControl,
@@ -54,7 +78,17 @@ NodeTwoBlocks.craft = {
 NodeOneBlock.craft = {
   ...NodeOneBlock.craft,
   props: {
-    className: 'w-full',
+    className: "w-full",
+  },
+  related: {
+    toolbar: SettingsControl,
+  },
+};
+
+NodeThreeBlocks.craft = {
+  displayName: "div",
+  props: {
+    className: "flex flex-row m-2 p-4",
   },
   related: {
     toolbar: SettingsControl,

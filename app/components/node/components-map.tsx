@@ -8,7 +8,7 @@ import {
   CardContent,
   CardFooter,
 } from '../ui/card';
-import { OneBlock, NodeOneBlock, NodeTwoBlocks } from './layout';
+import { OneBlock, NodeOneBlock, NodeTwoBlocks, NodeThreeBlocks } from './layout';
 import { NodeButton } from './button';
 import { NodeCard } from './card';
 import { Element } from '@craftjs/core';
@@ -110,6 +110,23 @@ export const componentsMap: Components[] = [
           </OneBlock>
         ),
         node: <NodeTwoBlocks></NodeTwoBlocks>,
+      },
+      {
+        name: 'Three Blocks',
+        demo: (
+          <OneBlock className="text-center italic p-4 bg-yellow-100 outline-dashed outline-amber-400 flex flex-row">
+            <OneBlock className="text-center italic bg-yellow-100 outline-dashed outline-amber-400">
+              First Block
+            </OneBlock>
+            <OneBlock className="text-center italic bg-yellow-100 outline-dashed outline-amber-400">
+              Second Block
+            </OneBlock>
+            <OneBlock className="text-center italic bg-yellow-100 outline-dashed outline-amber-400">
+              Third Block
+            </OneBlock>
+          </OneBlock>
+        ),
+        node: <NodeThreeBlocks></NodeThreeBlocks>,
       },
     ],
   },

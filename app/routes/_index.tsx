@@ -1,8 +1,8 @@
-import { Editor, Frame, Element } from '@craftjs/core';
-import { SideMenu } from '~/components/side-menu';
-import { Header } from '~/components/header';
-import { Canvas } from '~/components/canvas';
-import { NodeButton } from '~/components/node/button';
+import { Editor, Frame, Element } from "@craftjs/core";
+import { SideMenu } from "~/components/side-menu";
+import { Header } from "~/components/header";
+import { Canvas } from "~/components/canvas";
+import { NodeButton } from "~/components/node/button";
 import {
   NodeCardHeader,
   NodeCard,
@@ -10,13 +10,17 @@ import {
   NodeCardDescription,
   NodeCardTitle,
   NodeCardFooter,
-} from '~/components/node/card';
-import { ReactIframe } from '~/components/react-iframe';
-import { ControlPanel } from '~/components/control-panel';
-import { Viewport } from '~/components/viewport';
-import { RenderNode } from '~/components/render-node';
-import { componentsMap } from '~/components/node/components-map';
-import { NodeOneBlock, NodeTwoBlocks } from '~/components/node/layout';
+} from "~/components/node/card";
+import { ReactIframe } from "~/components/react-iframe";
+import { ControlPanel } from "~/components/control-panel";
+import { Viewport } from "~/components/viewport";
+import { RenderNode } from "~/components/render-node";
+import { componentsMap } from "~/components/node/components-map";
+import {
+  NodeOneBlock,
+  NodeTwoBlocks,
+  NodeThreeBlocks,
+} from "~/components/node/layout";
 
 export default function Index() {
   return (
@@ -34,6 +38,7 @@ export default function Index() {
           NodeCardFooter,
           NodeOneBlock,
           NodeTwoBlocks,
+          NodeThreeBlocks,
         }}
         onRender={RenderNode}
       >
