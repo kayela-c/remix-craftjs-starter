@@ -1,17 +1,50 @@
-import { useEditor, useNode } from '@craftjs/core';
-import { Component, ReactNode, useEffect, useState } from 'react';
-import Select, { MultiValue, components, createFilter } from 'react-select';
-import { suggestions } from '~/lib/tw-classes';
+import { useEditor, useNode } from "@craftjs/core";
+import { Component, ReactNode, useEffect, useState } from "react";
+import Select, { MultiValue, components, createFilter } from "react-select";
+import { suggestions } from "~/lib/tw-classes";
 import {
   Option,
   SelectValue,
-} from 'react-tailwindcss-select/dist/components/type';
-import { FixedSizeList as List } from 'react-window';
-import { Button } from './ui/button';
-import { Trash2 } from 'lucide-react';
-import { Input } from './ui/input';
+} from "react-tailwindcss-select/dist/components/type";
+import { FixedSizeList as List } from "react-window";
+import { Button } from "./ui/button";
+import { Trash2 } from "lucide-react";
+import { Input } from "./ui/input";
 
 const selectOptions = suggestions.map((value) => ({ label: value, value }));
+
+const selectStyles = {
+  control: (base: any) => ({
+    ...base,
+    color: "#000",
+    backgroundColor: "#fff",
+  }),
+  menu: (base: any) => ({
+    ...base,
+    backgroundColor: "#fff",
+  }),
+  option: (base: any, state: any) => ({
+    ...base,
+    color: "#000",
+    backgroundColor: state.isFocused ? "#f3f4f6" : "#fff",
+  }),
+  singleValue: (base: any) => ({
+    ...base,
+    color: "#000",
+  }),
+  multiValueLabel: (base: any) => ({
+    ...base,
+    color: "#000",
+  }),
+  placeholder: (base: any) => ({
+    ...base,
+    color: "#6b7280", // gray-500
+  }),
+  input: (base: any) => ({
+    ...base,
+    color: "#000",
+  }),
+};
 
 export const SettingsControl = () => {
   const { query, actions } = useEditor();
@@ -22,13 +55,13 @@ export const SettingsControl = () => {
     text,
     actions: { setProp },
   } = useNode((node) => ({
-    classNames: node.data.props['className'] as string,
-    text: node.data.props['children'] as string,
+    classNames: node.data.props["className"] as string,
+    text: node.data.props["children"] as string,
     deletable: query.node(node.id).isDeletable(),
   }));
 
   const tailwindcssArr = classNames
-    ? classNames.split(' ').filter(Boolean)
+    ? classNames.split(" ").filter(Boolean)
     : [];
 
   const initialOptions = tailwindcssArr.map((value) => ({
@@ -38,7 +71,7 @@ export const SettingsControl = () => {
 
   useEffect(() => {
     const tailwindcssArr = classNames
-      ? classNames.split(' ').filter(Boolean)
+      ? classNames.split(" ").filter(Boolean)
       : [];
 
     const newOptions = tailwindcssArr.map((value) => ({
@@ -68,7 +101,7 @@ export const SettingsControl = () => {
 
       return (
         <List
-          width={'100%'} // Replace with the desired width value
+          width={"100%"} // Replace with the desired width value
           height={maxHeight}
           itemCount={children.length}
           itemSize={height}
@@ -102,7 +135,7 @@ export const SettingsControl = () => {
     <div className="p-4">
       {deletable ? (
         <Button
-          variant={'destructive'}
+          variant={"destructive"}
           className="cursor-pointer mb-4 w-full"
           onClick={(event) => {
             event.stopPropagation();
@@ -115,7 +148,7 @@ export const SettingsControl = () => {
           Delete
         </Button>
       ) : null}
-      {typeof text === 'string' ? (
+      {typeof text === "string" ? (
         <Input
           type="text"
           value={text}
@@ -123,31 +156,32 @@ export const SettingsControl = () => {
           onChange={(e) =>
             setProp(
               (props: { children: ReactNode }) =>
-                (props.children = e.target.value.replace(/<\/?[^>]+(>|$)/g, ''))
+                (props.children = e.target.value.replace(/<\/?[^>]+(>|$)/g, ""))
             )
           }
         />
       ) : null}
       <Select
         options={selectOptions}
+        styles={selectStyles}
         isSearchable
         isClearable={false}
         components={{ MenuList, Option: CustomOption }}
         isMulti
-        placeholder={'Add new class'}
+        placeholder={"Add new class"}
         value={value}
         filterOption={createFilter({ ignoreAccents: false })}
         onChange={(option) => {
           if (option && Array.isArray(option)) {
-            const classNames = option.map((item) => item.value).join(' ');
+            const classNames = option.map((item) => item.value).join(" ");
             setProp((props: { className: string }) => {
-              console.log('Setting props ', props.className);
+              console.log("Setting props ", props.className);
               props.className = classNames;
             });
           }
 
           if (!option) {
-            setProp((props: { className: string }) => (props.className = ''));
+            setProp((props: { className: string }) => (props.className = ""));
           }
 
           setValue(option);
