@@ -4,6 +4,7 @@ import { useEditor, useNode } from '@craftjs/core';
 
 const BUTTON_PATH = '@/components/button';
 const CARD_PATH = '@/components/card';
+const NAVBAR_PATH = '@/components/navbar';
 
 const importPathMap: { [key: string]: string } = {
   button: BUTTON_PATH,
@@ -13,6 +14,11 @@ const importPathMap: { [key: string]: string } = {
   cardfooter: CARD_PATH,
   cardtitle: CARD_PATH,
   carddescription: CARD_PATH,
+  navbar: NAVBAR_PATH,
+  navbarbrand: NAVBAR_PATH,
+  navbarcontent: NAVBAR_PATH,
+  navbaractions: NAVBAR_PATH,
+  navbarlink: NAVBAR_PATH,
 };
 
 export const withNode = <T extends {}>(

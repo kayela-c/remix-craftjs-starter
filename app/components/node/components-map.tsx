@@ -1,5 +1,5 @@
-import { ReactElement, ReactNode } from 'react';
-import { Button } from '../ui/button';
+import { ReactElement, ReactNode } from "react";
+import { Button } from "../ui/button";
 import {
   Card,
   CardHeader,
@@ -7,11 +7,24 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from '../ui/card';
-import { OneBlock, NodeOneBlock, NodeTwoBlocks, NodeThreeBlocks } from './layout';
-import { NodeButton } from './button';
-import { NodeCard } from './card';
-import { Element } from '@craftjs/core';
+} from "../ui/card";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarActions,
+  NavbarLink,
+} from "../ui/navbar";
+import {
+  OneBlock,
+  NodeOneBlock,
+  NodeTwoBlocks,
+  NodeThreeBlocks,
+} from "./layout";
+import { NodeButton } from "./button";
+import { NodeCard } from "./card";
+import { NodeNavbar, NodeNavbarSimple, NodeNavbarLink } from "./navbar";
+import { Element } from "@craftjs/core";
 
 export type Components = {
   name: string;
@@ -19,12 +32,12 @@ export type Components = {
     name: string;
     props?: {
       variant?:
-        | 'link'
-        | 'default'
-        | 'destructive'
-        | 'outline'
-        | 'secondary'
-        | 'ghost'
+        | "link"
+        | "default"
+        | "destructive"
+        | "outline"
+        | "secondary"
+        | "ghost"
         | null
         | undefined;
       className?: string;
@@ -37,32 +50,44 @@ export type Components = {
 
 export const componentsMap: Components[] = [
   {
-    name: 'Buttons',
+    name: "Buttons",
     items: [
       {
-        name: 'Default',
-        demo: <Button>Default</Button>,
+        name: "Default",
+        demo: (
+          <div className="flex justify-center w-full">
+            <Button>Default</Button>
+          </div>
+        ),
         node: <NodeButton>Default</NodeButton>,
       },
       {
-        name: 'Outline',
-        props: { variant: 'outline', children: 'Outline' },
-        demo: <Button variant={'outline'}>Outline</Button>,
-        node: <NodeButton variant={'outline'}>Outline</NodeButton>,
+        name: "Outline",
+        props: { variant: "outline", children: "Outline" },
+        demo: (
+          <div className="flex justify-center w-full">
+            <Button variant={"outline"}>Outline</Button>
+          </div>
+        ),
+        node: <NodeButton variant={"outline"}>Outline</NodeButton>,
       },
       {
-        name: 'Destructive',
-        props: { variant: 'destructive', children: 'Destructive' },
-        demo: <Button variant={'destructive'}>Destructive</Button>,
-        node: <NodeButton variant={'destructive'}>Destructive</NodeButton>,
+        name: "Destructive",
+        props: { variant: "destructive", children: "Destructive" },
+        demo: (
+          <div className="flex justify-center w-full">
+            <Button variant={"destructive"}>Destructive</Button>
+          </div>
+        ),
+        node: <NodeButton variant={"destructive"}>Destructive</NodeButton>,
       },
     ],
   },
   {
-    name: 'Cards',
+    name: "Cards",
     items: [
       {
-        name: 'Default',
+        name: "Default",
         demo: (
           <Card className="w-full">
             <CardHeader>
@@ -80,10 +105,10 @@ export const componentsMap: Components[] = [
     ],
   },
   {
-    name: 'Layout',
+    name: "Layout",
     items: [
       {
-        name: 'One Block',
+        name: "One Block",
         demo: (
           <OneBlock className="text-center italic p-4 bg-yellow-100 outline-dashed outline-amber-400">
             One Block
@@ -98,7 +123,7 @@ export const componentsMap: Components[] = [
         ),
       },
       {
-        name: 'Two Blocks',
+        name: "Two Blocks",
         demo: (
           <OneBlock className="text-center italic p-4 bg-yellow-100 outline-dashed outline-amber-400 flex flex-row">
             <OneBlock className="text-center italic bg-yellow-100 outline-dashed outline-amber-400">
@@ -112,7 +137,7 @@ export const componentsMap: Components[] = [
         node: <NodeTwoBlocks></NodeTwoBlocks>,
       },
       {
-        name: 'Three Blocks',
+        name: "Three Blocks",
         demo: (
           <OneBlock className="text-center italic p-4 bg-yellow-100 outline-dashed outline-amber-400 flex flex-row">
             <OneBlock className="text-center italic bg-yellow-100 outline-dashed outline-amber-400">
@@ -127,6 +152,53 @@ export const componentsMap: Components[] = [
           </OneBlock>
         ),
         node: <NodeThreeBlocks></NodeThreeBlocks>,
+      },
+    ],
+  },
+  {
+    name: "Navigation",
+    items: [
+      {
+        name: "Navbar",
+        demo: (
+          <Navbar className="w-full">
+            <NavbarBrand>
+              <NavbarLink>Brand</NavbarLink>
+            </NavbarBrand>
+            <NavbarContent>
+              <NavbarLink>Home</NavbarLink>
+              <NavbarLink>About</NavbarLink>
+              <NavbarLink>Services</NavbarLink>
+              <NavbarLink>Contact</NavbarLink>
+            </NavbarContent>
+            <NavbarActions>
+              <Button size="sm">Get Started</Button>
+            </NavbarActions>
+          </Navbar>
+        ),
+        node: <NodeNavbar></NodeNavbar>,
+      },
+      {
+        name: "Empty Navbar",
+        demo: (
+          <Navbar className="w-full">
+            <NavbarBrand className="text-center italic p-2 bg-yellow-100 outline-dashed outline-amber-400">
+              Brand
+            </NavbarBrand>
+            <NavbarContent className="text-center italic p-2 bg-yellow-100 outline-dashed outline-amber-400">
+              Content
+            </NavbarContent>
+            <NavbarActions className="text-center italic p-2 bg-yellow-100 outline-dashed outline-amber-400">
+              Actions
+            </NavbarActions>
+          </Navbar>
+        ),
+        node: <NodeNavbarSimple></NodeNavbarSimple>,
+      },
+      {
+        name: "Nav Link",
+        demo: <NavbarLink>Nav Link</NavbarLink>,
+        node: <NodeNavbarLink>Nav Link</NodeNavbarLink>,
       },
     ],
   },

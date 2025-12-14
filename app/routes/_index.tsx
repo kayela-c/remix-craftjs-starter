@@ -11,6 +11,15 @@ import {
   NodeCardTitle,
   NodeCardFooter,
 } from "~/components/node/card";
+import {
+  NodeNavbar,
+  NodeNavbarSimple,
+  NodeNavbarBrand,
+  NodeNavbarContent,
+  NodeNavbarActions,
+  NodeNavbarLink,
+  NodeNavbarContainer,
+} from "~/components/node/navbar";
 import { ReactIframe } from "~/components/react-iframe";
 import { ControlPanel } from "~/components/control-panel";
 import { Viewport } from "~/components/viewport";
@@ -39,6 +48,13 @@ export default function Index() {
           NodeOneBlock,
           NodeTwoBlocks,
           NodeThreeBlocks,
+          NodeNavbar,
+          NodeNavbarSimple,
+          NodeNavbarBrand,
+          NodeNavbarContent,
+          NodeNavbarActions,
+          NodeNavbarLink,
+          NodeNavbarContainer,
         }}
         onRender={RenderNode}
       >
@@ -51,10 +67,7 @@ export default function Index() {
             >
               <Frame>
                 <Element is={Canvas} id="ROOT" canvas>
-                  <NodeButton>Button 1</NodeButton>
-                  <NodeButton>Button 2</NodeButton>
-                  <NodeButton>Button 3</NodeButton>
-                  <NodeButton>Button 4</NodeButton>
+                  <NodeNavbar className="w-full" />
                 </Element>
               </Frame>
             </ReactIframe>
