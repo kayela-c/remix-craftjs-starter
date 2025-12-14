@@ -1,6 +1,29 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ForwardRefExoticComponent, RefAttributes } from 'react';
 import React, { forwardRef } from 'react';
 import { useEditor, useNode } from '@craftjs/core';
+
+/**
+ * Craft.js configuration type for components
+ */
+export interface CraftConfig {
+  displayName?: string;
+  props?: Record<string, unknown>;
+  custom?: {
+    importPath?: string;
+  };
+  related?: {
+    toolbar?: React.ComponentType<unknown>;
+  };
+}
+
+/**
+ * Extended component type that includes the craft property
+ */
+export type WithNodeComponent<T> = ForwardRefExoticComponent<
+  Omit<PropsWithChildren<T>, 'ref'> & RefAttributes<HTMLElement>
+> & {
+  craft: CraftConfig;
+};
 
 const BUTTON_PATH = '@/components/button';
 const CARD_PATH = '@/components/card';
@@ -21,7 +44,7 @@ const importPathMap: { [key: string]: string } = {
   navbarlink: NAVBAR_PATH,
 };
 
-export const withNode = <T extends {}>(
+export const withNode = <T extends { className?: string }>(
   Component: React.ComponentType<T>,
   { draggable = true, droppable = true } = {}
 ) => {
@@ -89,12 +112,15 @@ export const withNode = <T extends {}>(
     importPathMapKey && importPathMap[importPathMapKey]
   );
 
-  WithNode.craft = {
+  // Cast to include craft property for Craft.js integration
+  const EnhancedComponent = WithNode as WithNodeComponent<T>;
+  
+  EnhancedComponent.craft = {
     displayName: Component.displayName,
     custom: {
       importPath: importPathMapKey ? importPathMap[importPathMapKey] || '' : '',
     },
   };
 
-  return WithNode;
+  return EnhancedComponent;
 };
