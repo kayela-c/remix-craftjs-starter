@@ -7,6 +7,7 @@ import {
 } from '../ui/navbar';
 import { Element } from '@craftjs/core';
 import { SettingsControl } from '../settings-control';
+import { LinkSettingsControl } from '../link-settings-control';
 import { withNode } from './connector';
 
 interface NodeNavbarProps extends React.HTMLAttributes<HTMLElement> {}
@@ -54,16 +55,30 @@ export const NodeNavbarActions = withNode(NavbarActions, {
   },
 };
 
-// Navbar Link - Draggable link component
-export const NodeNavbarLink = withNode(NavbarLink, {
+// Navbar Link - Draggable link component with click prevention in editor
+const NavbarLinkWrapper = ({ onClick, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Prevent navigation in the editor
+    e.preventDefault();
+    onClick?.(e);
+  };
+
+  return <NavbarLink onClick={handleClick} {...props} />;
+};
+
+export const NodeNavbarLink = withNode(NavbarLinkWrapper, {
   draggable,
 });
 
 (NodeNavbarLink as any).craft = {
   ...(NodeNavbarLink as any).craft,
   displayName: 'NavbarLink',
+  props: {
+    href: '#',
+    target: '_self',
+  },
   related: {
-    toolbar: SettingsControl,
+    toolbar: LinkSettingsControl,
   },
 };
 
