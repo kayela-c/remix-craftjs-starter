@@ -1,81 +1,65 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React from 'react';
 
 import {
-  NavigationMenuLink,
   NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
   NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
   NavigationMenuViewport,
 } from './ui/vertical-navigation-menu';
+import { palette } from '~/lib/palette';
+import { useBuilder } from './builder-provider';
 import { cn } from '~/lib/utils';
-import { useEditor } from '@craftjs/core';
-import { Components } from './node/components-map';
 
-export interface SideMenuProps {
-  componentsMap: Components[];
-}
-
-export const SideMenu = ({ componentsMap }: SideMenuProps) => {
-  const { connectors } = useEditor();
+export const SideMenu = () => {
+  const { addTemplate } = useBuilder();
 
   return (
     <NavigationMenu
       orientation="vertical"
-      className="justify-start items-start border-r"
+      className="items-start justify-start border-r"
     >
-      <NavigationMenuList className="flex-col w-36">
-        {componentsMap.map((menuItem, index) => (
-          <NavigationMenuItem key={index} className="p-2">
-            <NavigationMenuTrigger className="flex justify-between w-full">
-              {menuItem.name}
+      <NavigationMenuList className="w-40 flex-col">
+        {palette.map((category) => (
+          <NavigationMenuItem key={category.name} className="p-2">
+            <NavigationMenuTrigger className="flex w-full justify-between">
+              {category.name}
             </NavigationMenuTrigger>
             <NavigationMenuContent className="w-full">
               <ul className="w-full">
-                {menuItem.items.map((component, index) => (
-                  <ListItem
-                    key={index}
-                    ref={(ref) => {
-                      if (ref) {
-                        connectors.create(ref, component.node);
-                      }
-                    }}
-                  >
-                    {component.demo ? component.demo : component.name}
-                  </ListItem>
+                {category.items.map((item) => (
+                  <li key={item.name} className="w-full p-2">
+                    <NavigationMenuLink asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          'w-full rounded-md border p-3 text-left transition hover:border-primary hover:bg-muted'
+                        )}
+                        onClick={() => addTemplate(item.build)}
+                      >
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium">
+                            {item.name}
+                          </div>
+                          {item.demo}
+                          {item.description ? (
+                            <p className="text-xs text-muted-foreground">
+                              {item.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </button>
+                    </NavigationMenuLink>
+                  </li>
                 ))}
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
         ))}
       </NavigationMenuList>
-      <NavigationMenuViewport className="w-48 left-1 border-r shadow-none" />
+      <NavigationMenuViewport className="left-1 w-52 border-r shadow-none" />
     </NavigationMenu>
   );
 };
-
-const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'>
->(({ className, children, ...props }, ref) => {
-  return (
-    <li className="w-full p-2">
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            'block w-full select-none space-y-1 rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm w-full font-medium leading-none">
-            {children}
-          </div>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = 'ListItem';

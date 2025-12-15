@@ -1,155 +1,144 @@
-import type { Node, Nodes } from '@craftjs/core';
+import * as t from '@rekajs/types';
 
-let imports: { displayName: string; importPath: string }[] = [];
+type ImportMap = Map<string, Set<string>>;
 
-const generateComponentCode = (
-  nodesMap: Nodes,
-  nodeId: string,
-  level: number
-): string => {
-  const node = nodesMap[nodeId];
-  const { displayName, props, nodes, linkedNodes, custom } = node.data;
+const indent = (level: number) => ' '.repeat(level);
 
-  const indendation = getIndentation(level);
-  const openingTag = `<${displayName}${generatePropsString(props)}>`;
-  const closingTag = `</${displayName}>`;
-
-  console.log(' custom ', displayName, custom);
-
-  if (!imports.find((item) => item.displayName === displayName)) {
-    imports.push({
-      displayName,
-      importPath: custom.importPath,
-    });
+const formatValue = (value: unknown) => {
+  if (value === null || value === undefined) {
+    return '""';
   }
-
-  if (nodes.length === 0 && Object.keys(linkedNodes).length === 0) {
-    // No child nodes, return the self-closing tag
-    return `${indendation}${openingTag}${generateChildString(
-      props.children,
-      level + 1
-    )}${closingTag}`;
-  } else {
-    // Has child nodes, recursively generate code for children
-    const childComponents = nodes.map((childId) =>
-      generateComponentCode(nodesMap, childId, level + 1)
-    );
-
-    const childComponentsString = childComponents.length
-      ? `\n${childComponents.join(`\n`)}`
-      : '';
-
-    const linkedChildComponents = Object.entries(linkedNodes).map(
-      ([key, value]) => generateComponentCode(nodesMap, value, level + 1)
-    );
-
-    const linkedChildComponentsString = linkedChildComponents.length
-      ? `\n${linkedChildComponents.join(`\n`)}`
-      : '';
-
-    return `${indendation}${openingTag}${childComponentsString}${linkedChildComponentsString}\n${indendation}${closingTag}`;
+  if (typeof value === 'string') {
+    return `"${value}"`;
   }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return `{${value}}`;
+  }
+  if (Array.isArray(value)) {
+    return `{${JSON.stringify(value)}}`;
+  }
+  if (typeof value === 'object') {
+    return `{${JSON.stringify(value)}}`;
+  }
+  return '{/* expression */}';
 };
 
-interface ComponentInfo {
-  displayName: string;
-  importPath: string;
-}
-
-const generateImportStatements = (components: ComponentInfo[]): string => {
-  const filteredComponents = components.filter(
-    (comp) => comp.displayName !== 'div'
+const formatProps = (
+  props: Record<string, any>,
+  excludes: string[] = ['children', 'value']
+) => {
+  const entries = Object.entries(props || {}).filter(
+    ([key]) => !excludes.includes(key)
   );
-
-  const groupedComponents: { [key: string]: ComponentInfo[] } = {};
-
-  // Group components by import path
-  filteredComponents.forEach((comp) => {
-    const key = comp.importPath || ''; // Use an empty string for components without a path
-    if (!groupedComponents[key]) {
-      groupedComponents[key] = [];
-    }
-    groupedComponents[key].push(comp);
-  });
-
-  // Generate import statements
-  const importStatements = Object.values(groupedComponents).map((group) => {
-    const displayNameList = group.map((comp) => comp.displayName).join(', ');
-    const importPath = group[0].importPath
-      ? ` from "${group[0].importPath}"`
-      : '';
-    return `import { ${displayNameList} }${importPath};`;
-  });
-
-  return importStatements.join('\n');
+  if (!entries.length) {
+    return '';
+  }
+  return (
+    ' ' +
+    entries
+      .map(([key, value]) => `${key}=${formatValue(value)}`)
+      .join(' ')
+  );
 };
 
-function wrapInsideComponent(input: string): string {
-  return `
+const renderView = (
+  view: t.View,
+  level: number,
+  imports: ImportMap
+): string => {
+  if (view instanceof t.TagView) {
+    if (view.tag === 'text') {
+      const value =
+        typeof view.props.value === 'string'
+          ? view.props.value
+          : JSON.stringify(view.props.value ?? '');
+      return `${indent(level)}${value}`;
+    }
+    const children = view.children
+      .map((child) => renderView(child, level + 2, imports))
+      .join('\n');
+    const propString = formatProps(view.props);
+    if (!children) {
+      return `${indent(level)}<${view.tag}${propString} />`;
+    }
+    return `${indent(level)}<${view.tag}${propString}>\n${children}\n${indent(
+      level
+    )}</${view.tag}>`;
+  }
+
+  if (view instanceof t.RekaComponentView) {
+    const children = view.render
+      .map((child) => renderView(child, level + 2, imports))
+      .join('\n');
+    const componentName = view.component.name;
+    if (!children) {
+      return `${indent(level)}<${componentName} />`;
+    }
+    return `${indent(level)}<${componentName}>\n${children}\n${indent(
+      level
+    )}</${componentName}>`;
+  }
+
+  if (view instanceof t.ExternalComponentView) {
+    const componentName = view.component.name;
+    const importPath = view.component.meta?.importPath;
+    if (componentName && importPath) {
+      if (!imports.has(importPath)) {
+        imports.set(importPath, new Set());
+      }
+      imports.get(importPath)?.add(componentName);
+    }
+    const propString = formatProps(view.props);
+    return `${indent(level)}<${componentName}${propString} />`;
+  }
+
+  if (
+    view instanceof t.FragmentView ||
+    view instanceof t.FrameView ||
+    view instanceof t.SlotView ||
+    view instanceof t.EachSystemView
+  ) {
+    return view.children
+      .map((child) => renderView(child, level, imports))
+      .join('\n');
+  }
+
+  if (view instanceof t.ErrorSystemView) {
+    return `${indent(level)}{/* Error: ${view.error} */}`;
+  }
+
+  return '';
+};
+
+export const getOutputCode = (view?: t.FrameView | null) => {
+  if (!view) {
+    return {
+      importString: '',
+      output: '// No preview to export yet.',
+    };
+  }
+
+  const imports: ImportMap = new Map();
+  const markup = view.children
+    .map((child) => renderView(child, 4, imports))
+    .join('\n');
+
+  const importString = Array.from(imports.entries())
+    .map(
+      ([path, names]) => `import { ${Array.from(names).join(', ')} } from '${path}';`
+    )
+    .join('\n');
+
+  const output = `
 export function Component() {
   return (
-    ${input.trim().replace(/^/gm, '  ')}
+${markup || indent(6) + '<div />'}
   );
 }
-  `.trim();
-}
+`.trim();
 
-const generatePropsString = (props: {
-  [key: string]: string | undefined;
-}): string => {
-  const propsArray = Object.entries(props)
-    .filter(([key]) => key !== 'children') // Exclude children from props
-    .map(([key, value]) => `${key}="${value}"`);
-  return propsArray.length > 0 ? ` ${propsArray.join(' ')}` : '';
-};
-
-const getIndentation = (level: number): string => {
-  if (!level) {
-    return '';
-  }
-  return ' '.repeat(level * 2); // Adjust the number of spaces per level as needed
-};
-
-const generateChildString = (
-  children: string | Node[] | undefined,
-  level: number
-): string => {
-  if (typeof children === 'string') {
-    // If children is a string, return it directly
-    return children;
-  } else if (Array.isArray(children) && children.length > 0) {
-    return children
-      .map((child) => generateComponentCode({ TEMP: child }, 'TEMP', level))
-      .join('');
-  } else {
-    return '';
-  }
-};
-
-export const getOutputCode = (nodes: Nodes) => {
-  imports = [];
-
-  const componentString = generateComponentCode(nodes, 'ROOT', 2);
-  const importString = generateImportStatements(imports);
-  const output = wrapInsideComponent(componentString);
-  console.log(generateImportStatements(imports));
-  console.log('imports ', imports);
-
-  return { importString, output };
-};
-
-export const getOutputHTMLFromId = (iframeId: string): string => {
-  const iframe = document.getElementById(iframeId) as HTMLIFrameElement | null;
-  const iframeDocument = iframe?.contentWindow?.document || null;
-
-  if (iframeDocument) {
-    const indentation = '  '; // Adjust the indentation as needed
-    const iframeHtml = iframeDocument.documentElement.outerHTML;
-    const indentedHtml = iframeHtml.replace(/^(.*)$/gm, indentation + '$1');
-
-    return indentedHtml;
-  } else {
-    alert('Failed to access iframe content.');
-    return '';
-  }
+  return {
+    importString,
+    output,
+  };
 };

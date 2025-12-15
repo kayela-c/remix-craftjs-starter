@@ -1,81 +1,39 @@
-import { Editor, Frame, Element } from "@craftjs/core";
-import { SideMenu } from "~/components/side-menu";
-import { Header } from "~/components/header";
-import { Canvas } from "~/components/canvas";
-import { NodeButton } from "~/components/node/button";
-import {
-  NodeCardHeader,
-  NodeCard,
-  NodeCardContent,
-  NodeCardDescription,
-  NodeCardTitle,
-  NodeCardFooter,
-} from "~/components/node/card";
-import {
-  NodeNavbar,
-  NodeNavbarSimple,
-  NodeNavbarBrand,
-  NodeNavbarContent,
-  NodeNavbarActions,
-  NodeNavbarLink,
-  NodeNavbarContainer,
-} from "~/components/node/navbar";
-import { ReactIframe } from "~/components/react-iframe";
-import { ControlPanel } from "~/components/control-panel";
-import { Viewport } from "~/components/viewport";
-import { RenderNode } from "~/components/render-node";
-import { componentsMap } from "~/components/node/components-map";
-import {
-  NodeOneBlock,
-  NodeTwoBlocks,
-  NodeThreeBlocks,
-} from "~/components/node/layout";
+import { RekaProvider } from '@rekajs/react';
+
+import { Header } from '~/components/header';
+import { SideMenu } from '~/components/side-menu';
+import { Canvas } from '~/components/canvas';
+import { ReactIframe } from '~/components/react-iframe';
+import { ControlPanel } from '~/components/control-panel';
+import { Viewport } from '~/components/viewport';
+import { reka } from '~/lib/reka';
+import { BuilderProvider } from '~/components/builder-provider';
+import { RekaRenderer } from '~/components/reka-renderer';
 
 export default function Index() {
   return (
-    <section className="w-full min-h-screen flex flex-col">
-      <Header />
-      <Editor
-        resolver={{
-          NodeButton,
-          Canvas,
-          NodeCardHeader,
-          NodeCard,
-          NodeCardContent,
-          NodeCardDescription,
-          NodeCardTitle,
-          NodeCardFooter,
-          NodeOneBlock,
-          NodeTwoBlocks,
-          NodeThreeBlocks,
-          NodeNavbar,
-          NodeNavbarSimple,
-          NodeNavbarBrand,
-          NodeNavbarContent,
-          NodeNavbarActions,
-          NodeNavbarLink,
-          NodeNavbarContainer,
-        }}
-        onRender={RenderNode}
-      >
-        <div className="flex flex-1 relative overflow-hidden">
-          <SideMenu componentsMap={componentsMap} />
-          <Viewport>
-            <ReactIframe
-              title="my frame"
-              className="p-4 w-full h-full page-container"
-            >
-              <Frame>
-                <Element is={Canvas} id="ROOT" canvas>
-                  <NodeNavbar className="w-full" />
-                </Element>
-              </Frame>
-            </ReactIframe>
-          </Viewport>
-
-          <ControlPanel />
-        </div>
-      </Editor>
-    </section>
+    <RekaProvider reka={reka}>
+      <BuilderProvider>
+        <section className="flex min-h-screen w-full flex-col">
+          <Header />
+          <div className="relative flex flex-1 overflow-hidden">
+            <SideMenu />
+            <Viewport>
+              <Canvas>
+                <ReactIframe
+                  title="reka-preview"
+                  className="page-container h-full w-full p-4"
+                >
+                  <div className="min-h-full bg-white p-6">
+                    <RekaRenderer />
+                  </div>
+                </ReactIframe>
+              </Canvas>
+            </Viewport>
+            <ControlPanel />
+          </div>
+        </section>
+      </BuilderProvider>
+    </RekaProvider>
   );
 }
